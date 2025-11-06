@@ -1,0 +1,54 @@
+
+\documentclass[11pt,letterpaper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{hyperref}
+
+\title{EE4745 Neural Network Final Project\\
+\large Defending LSU's Sports AI: Classification, Attacks, and Compression}
+\author{Tyler Trauernicht \and Vinh Le}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This project presents a comprehensive analysis of neural network deployment challenges through sports image classification. We evaluate two architectures (SimpleCNN and ResNetSmall) across three critical dimensions: classification accuracy, adversarial robustness, and model compression. Our findings provide practical deployment guidelines for diverse computational environments while highlighting security considerations for AI systems.
+\end{abstract}
+
+\section{Introduction}
+The deployment of neural networks in real-world applications requires careful consideration of multiple competing objectives: accuracy, computational efficiency, adversarial robustness, and interpretability. This study examines these trade-offs through a unified framework applied to sports image classification.
+
+\section{Methodology}
+We implemented and evaluated two neural network architectures on a 10-class sports dataset:
+\begin{itemize}
+\item \textbf{SimpleCNN}: 3 convolutional blocks, 147K parameters
+\item \textbf{ResNetSmall}: ResNet-based architecture, 600K parameters
+\end{itemize}
+
+\section{Key Results}
+
+\subsection{Classification Performance}
+ResNetSmall achieved superior accuracy (86.5\%) compared to SimpleCNN (82.8\%), with the trade-off of 4× more parameters and 1.7× longer training time.
+
+\subsection{Adversarial Robustness}
+Both models showed significant vulnerability to gradient-based attacks, with PGD achieving up to 58\% attack success rate. Cross-model transferability averaged 68\%.
+
+\subsection{Model Compression}
+Magnitude-based pruning achieved optimal accuracy-efficiency balance at 20\% sparsity, with ResNetSmall showing superior compression tolerance due to residual connections.
+
+\section{Deployment Recommendations}
+\begin{itemize}
+\item \textbf{Mobile}: SimpleCNN (50\% pruned) - 78\% accuracy, 0.3 MB
+\item \textbf{Edge}: ResNetSmall (20\% pruned) - 86\% accuracy, 1.9 MB
+\item \textbf{Server}: ResNetSmall baseline - 86.5\% accuracy, 2.4 MB
+\item \textbf{Security}: Adversarial ensemble - 82\% robust accuracy
+\end{itemize}
+
+\section{Conclusion}
+No single model configuration excels across all metrics. Successful deployment requires matching model characteristics to specific use case constraints and security requirements. Our framework provides the analytical foundation for these critical design decisions.
+
+\end{document}

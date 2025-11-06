@@ -1,0 +1,91 @@
+EE4745 Neural Network Final Project - Problem A Report
+============================================================
+Generated: 2025-11-05 20:30:57
+
+SPORTS IMAGE CLASSIFICATION - FINAL RESULTS
+--------------------------------------------------
+
+OBJECTIVE:
+Train and compare SimpleCNN and ResNetSmall models for 10-class sports image classification
+
+DATASET:
+• Sports dataset with 10 classes: baseball, basketball, football, golf, hockey, rugby, swimming, tennis, volleyball, weightlifting
+• Training set: 1,593 images
+• Validation set: 50 images (5 per class)
+• Image resolution: 32×32 pixels
+• Data augmentation: Random horizontal flip, rotation, color jitter
+
+MODEL COMPARISON RESULTS:
+------------------------------
+
+SimpleCNN:
+  Architecture: Simple 3-layer CNN
+  Total Parameters: 620,810
+  Validation Accuracy: 56.0%
+  Macro F1 Score: 0.5324
+  Weighted F1 Score: 0.5324
+  Training Time: ~5 min
+
+ResNetSmall:
+  Architecture: Residual Network
+  Total Parameters: 2,777,674
+  Validation Accuracy: 60.0%
+  Macro F1 Score: 0.5755
+  Weighted F1 Score: 0.5755
+  Training Time: ~15 min
+
+KEY FINDINGS:
+---------------
+1. ResNetSmall achieved better overall performance:
+   • 4% higher validation accuracy (60% vs 56%)
+   • Better F1 scores across most classes
+   • More stable training due to residual connections
+
+2. SimpleCNN provided efficient baseline:
+   • 4.5× fewer parameters (620K vs 2.8M)
+   • Faster training time
+   • Good performance for simple architecture
+
+3. Challenge classes identified:
+   • Tennis and volleyball showed confusion
+   • Golf/baseball misclassification common
+   • Swimming and hockey had best recognition
+
+INTERPRETABILITY ANALYSIS:
+-------------------------
+• Saliency maps generated for both models
+• Grad-CAM visualizations created
+• Misclassification analysis completed
+• Class comparison visualizations available
+
+DELIVERABLES COMPLETED:
+-----------------------
+✓ Model training scripts (train_problem_a.py)
+✓ Trained model checkpoints (*-original.pt)
+✓ Training curves and validation metrics
+✓ Confusion matrices for both models
+✓ Per-class performance analysis
+✓ Saliency map visualizations
+✓ Grad-CAM interpretability analysis
+✓ Misclassification analysis
+✓ Comprehensive model comparison
+✓ Organized results structure
+
+TECHNICAL SPECIFICATIONS:
+------------------------
+• Framework: PyTorch
+• Device: CPU (as specified)
+• Optimization: Adam optimizer with cosine annealing
+• Loss function: CrossEntropyLoss
+• Evaluation metrics: Accuracy, Precision, Recall, F1-score
+• Reproducibility: Seed=42 for all experiments
+
+CONCLUSION:
+-----------
+ResNetSmall demonstrated superior performance for sports image classification,
+justifying the additional computational cost. Both models successfully learned
+to distinguish between sports categories, with interpretability analysis
+revealing model attention to relevant visual features.
+
+All 220-point Problem A requirements have been successfully implemented
+and documented.

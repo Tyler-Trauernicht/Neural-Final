@@ -1,0 +1,33 @@
+Validation Report - Epoch 5
+==================================================
+
+Per-class Performance:
+------------------------------
+baseball    : P=0.750, R=0.600, F1=0.667, N=5.0
+basketball  : P=0.500, R=0.800, F1=0.615, N=5.0
+football    : P=0.750, R=0.600, F1=0.667, N=5.0
+golf        : P=0.667, R=0.800, F1=0.727, N=5.0
+hockey      : P=0.625, R=1.000, F1=0.769, N=5.0
+rugby       : P=1.000, R=0.400, F1=0.571, N=5.0
+swimming    : P=0.714, R=1.000, F1=0.833, N=5.0
+tennis      : P=0.500, R=0.200, F1=0.286, N=5.0
+volleyball  : P=0.286, R=0.400, F1=0.333, N=5.0
+weightlifting: P=0.500, R=0.200, F1=0.286, N=5.0
+
+Overall Accuracy: 0.6000
+Macro Avg F1: 0.5755
+Weighted Avg F1: 0.5755
+
+Confusion Matrix:
+--------------------
+    bas bas foo gol hoc rug swi ten vol wei
+bas   3   1   0   1   0   0   0   0   0   0
+bas   0   4   0   0   1   0   0   0   0   0
+foo   0   0   3   1   1   0   0   0   0   0
+gol   1   0   0   4   0   0   0   0   0   0
+hoc   0   0   0   0   5   0   0   0   0   0
+rug   0   1   0   0   0   2   0   0   2   0
+swi   0   0   0   0   0   0   5   0   0   0
+ten   0   0   0   0   0   0   2   1   1   1
+vol   0   1   0   0   1   0   0   1   2   0
+wei   0   1   1   0   0   0   0   0   2   1

@@ -1,0 +1,9 @@
+Problem,Model,Variant,Accuracy,Parameters,Robustness,Interpretability
+A: Classification,SimpleCNN,Original,0.000,0,N/A,High
+A: Classification,ResNetSmall,Original,0.000,0,N/A,Medium
+C: Compression,SimpleCNN,20% Pruned,0.000,0,0.000,Reduced
+C: Compression,SimpleCNN,50% Pruned,0.000,0,0.000,Reduced
+C: Compression,SimpleCNN,80% Pruned,0.000,0,0.000,Reduced
+C: Compression,ResNetSmall,20% Pruned,0.000,0,0.000,Reduced
+C: Compression,ResNetSmall,50% Pruned,0.000,0,0.000,Reduced
+C: Compression,ResNetSmall,80% Pruned,0.000,0,0.000,Reduced

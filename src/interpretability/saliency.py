@@ -77,7 +77,7 @@ class SaliencyMap:
         saliency_map, prediction, confidence = self.generate(input_tensor, target_class)
 
         # Prepare original image for visualization
-        original_image = input_tensor.squeeze().cpu()
+        original_image = input_tensor.squeeze().detach().cpu()
 
         # Denormalize image (assuming ImageNet normalization)
         mean = torch.tensor([0.485, 0.456, 0.406]).view(3, 1, 1)
@@ -210,6 +210,8 @@ class SaliencyMap:
 
                     # Visualize and save
                     if save_dir:
+                        import os
+                        os.makedirs(save_dir, exist_ok=True)
                         true_class = class_names[label] if class_names else str(label)
                         pred_class = class_names[prediction] if class_names else str(prediction)
                         save_path = f"{save_dir}/misclassified_{true_class}_as_{pred_class}_{len(misclassified_results):03d}.png"

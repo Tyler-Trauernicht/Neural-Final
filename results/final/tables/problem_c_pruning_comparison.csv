@@ -1,0 +1,7 @@
+Model,Sparsity,Accuracy,Size (MB),Inference (ms),Robustness,Compression
+SimpleCNN,20%,0.000,0.00,0.0,0.000,0.8x
+ResNetSmall,20%,0.000,0.00,0.0,0.000,0.8x
+SimpleCNN,50%,0.000,0.00,0.0,0.000,0.5x
+ResNetSmall,50%,0.000,0.00,0.0,0.000,0.5x
+SimpleCNN,80%,0.000,0.00,0.0,0.000,0.2x
+ResNetSmall,80%,0.000,0.00,0.0,0.000,0.2x

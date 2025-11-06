@@ -110,7 +110,7 @@ class GradCAM:
         heatmap, prediction, confidence = self.generate(input_tensor, target_class)
 
         # Prepare original image for visualization
-        original_image = input_tensor.squeeze().cpu()
+        original_image = input_tensor.squeeze().detach().cpu()
 
         # Denormalize image (assuming ImageNet normalization)
         mean = torch.tensor([0.485, 0.456, 0.406]).view(3, 1, 1)
@@ -226,7 +226,7 @@ class GradCAM:
         fig, axes = plt.subplots(2, num_classes + 1, figsize=(4 * (num_classes + 1), 8))
 
         # Prepare original image
-        original_image = input_tensor.squeeze().cpu()
+        original_image = input_tensor.squeeze().detach().cpu()
         mean = torch.tensor([0.485, 0.456, 0.406]).view(3, 1, 1)
         std = torch.tensor([0.229, 0.224, 0.225]).view(3, 1, 1)
         original_image = original_image * std + mean

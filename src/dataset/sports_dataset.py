@@ -13,16 +13,17 @@ class SportsDataset(Dataset):
         'rugby', 'swimming', 'tennis', 'volleyball', 'weightlifting'
     ]
 
-    def __init__(self, data_dir, split='train', image_size=32, augment=True):
+    def __init__(self, root_dir, split='train', image_size=32, transform=None, augment=True):
         """
         Args:
-            data_dir (str): Path to dataset directory
-            split (str): 'train' or 'valid'
+            root_dir (str): Path to dataset directory
+            split (str): 'train', 'val', 'test', or 'valid'
             image_size (int): Target image size (32 or 64)
+            transform: Custom transform to apply (if provided, overrides augment)
             augment (bool): Whether to apply data augmentation
         """
-        self.data_dir = data_dir
-        self.split = split
+        self.root_dir = root_dir
+        self.split = split if split != 'test' else 'valid'  # Map test to valid for compatibility
         self.image_size = image_size
 
         # Create class to index mapping
@@ -32,12 +33,15 @@ class SportsDataset(Dataset):
         self.samples = self._load_samples()
 
         # Define transforms
-        self.transform = self._get_transforms(augment and split == 'train')
+        if transform is not None:
+            self.transform = transform
+        else:
+            self.transform = self._get_transforms(augment and split == 'train')
 
     def _load_samples(self):
         """Load all image paths and their corresponding labels"""
         samples = []
-        split_dir = os.path.join(self.data_dir, self.split)
+        split_dir = os.path.join(self.root_dir, self.split)
 
         for class_name in self.CLASSES:
             class_dir = os.path.join(split_dir, class_name)
@@ -120,14 +124,14 @@ def get_dataloaders(data_dir, batch_size=32, image_size=32, num_workers=2):
     """
     # Create datasets
     train_dataset = SportsDataset(
-        data_dir=data_dir,
+        root_dir=data_dir,
         split='train',
         image_size=image_size,
         augment=True
     )
 
     val_dataset = SportsDataset(
-        data_dir=data_dir,
+        root_dir=data_dir,
         split='valid',
         image_size=image_size,
         augment=False

@@ -1,0 +1,19 @@
+Classification Report - SimpleCNN
+==================================================
+
+Per-class Performance:
+------------------------------
+baseball    : P=0.500, R=0.600, F1=0.545, N=5.0
+basketball  : P=0.600, R=0.600, F1=0.600, N=5.0
+football    : P=0.500, R=0.200, F1=0.286, N=5.0
+golf        : P=0.333, R=0.400, F1=0.364, N=5.0
+hockey      : P=0.500, R=1.000, F1=0.667, N=5.0
+rugby       : P=1.000, R=0.400, F1=0.571, N=5.0
+swimming    : P=0.714, R=1.000, F1=0.833, N=5.0
+tennis      : P=0.500, R=0.400, F1=0.444, N=5.0
+volleyball  : P=0.500, R=0.200, F1=0.286, N=5.0
+weightlifting: P=0.667, R=0.800, F1=0.727, N=5.0
+
+Overall Accuracy: 0.5600
+Macro Avg F1: 0.5324
+Weighted Avg F1: 0.5324
