@@ -1,0 +1,39 @@
+Here are extra details for the project:
+
+Part 1: image Classification:
+
+Using a sports image Dataset, we will use 10 classes (trainable on CPU) to train out model. 
+
+using our dataset we have to compare at least two different models. Then we monitor the learning behavior using loss/accuracy curves (using tensorboard)
+
+Explain model decisions with interpretability techniques
+Accuracy Score: 20 pts
+Training validation : 35 pts
+interpretability: 35 pts
+reproducibility & design : 10
+Part 2: adversarial Attack (100 pts)
+implement both target and untargeted attacks against your best performing classifiers
+Part 3: model compression (100 pts)
+Make the model smaller!!!
+Prune the model from millions of parameters to compact, efficient models 
+
+This is covered in 2 weeks 
+FunDunZ — 10/9/25, 1:44 PM
+Part 4: Defense and Presentation (Optional) (100pt) (this is 10 extra bonus points ON YOUR FINAL GRADE)
+
+Implementation some defence method against adversarial attacks
+Class Notes 10/9/2025:
+
+CyberSecurity intro:
+C: Confidentiality
+I: Integrity
+A: Availability
+FunDunZ — 10/9/25, 2:18 PM
+recommended defence: PGD project gradient Descent
+﻿
+FunDunZ
+fundunz
+Vinh Le
+ 
+ 
+https://www.youtube.com/watch?v=dQw4w9WgXcQ
