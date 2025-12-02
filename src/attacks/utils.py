@@ -304,8 +304,8 @@ def save_adversarial_examples(original_images: torch.Tensor,
 
     for i in range(len(original_images)):
         # Convert to PIL images
-        orig_pil = Image.fromarray((orig_denorm[i].permute(1, 2, 0).cpu().numpy() * 255).astype(np.uint8))
-        adv_pil = Image.fromarray((adv_denorm[i].permute(1, 2, 0).cpu().numpy() * 255).astype(np.uint8))
+        orig_pil = Image.fromarray((orig_denorm[i].permute(1, 2, 0).cpu().detach().numpy() * 255).astype(np.uint8))
+        adv_pil = Image.fromarray((adv_denorm[i].permute(1, 2, 0).cpu().detach().numpy() * 255).astype(np.uint8))
 
         # Save images
         orig_path = os.path.join(save_dir, f"{prefix}_{i:03d}_original.png")
@@ -324,13 +324,22 @@ def save_adversarial_examples(original_images: torch.Tensor,
         # Add relevant metadata for this sample
         for key, value in metadata.items():
             if isinstance(value, (list, np.ndarray)) and len(value) > i:
-                meta_dict[key] = value[i] if not isinstance(value[i], np.ndarray) else value[i].tolist()
+                item = value[i]
+                if isinstance(item, np.ndarray):
+                    meta_dict[key] = item.tolist()
+                elif isinstance(item, torch.Tensor):
+                    meta_dict[key] = item.cpu().detach().numpy().tolist()
+                else:
+                    meta_dict[key] = item
             elif not isinstance(value, (list, np.ndarray)):
-                meta_dict[key] = value
+                if isinstance(value, torch.Tensor):
+                    meta_dict[key] = value.cpu().detach().numpy().tolist()
+                else:
+                    meta_dict[key] = value
 
         meta_path = os.path.join(save_dir, f"{prefix}_{i:03d}_metadata.json")
         with open(meta_path, 'w') as f:
-            json.dump(meta_dict, f, indent=2, default=lambda x: x.tolist() if isinstance(x, np.ndarray) else x)
+            json.dump(meta_dict, f, indent=2, default=lambda x: x.tolist() if isinstance(x, np.ndarray) else (x.cpu().detach().numpy().tolist() if isinstance(x, torch.Tensor) else str(x)))
 
 
 def load_model_checkpoint(model_class, checkpoint_path: str, device: str = 'cpu') -> nn.Module:

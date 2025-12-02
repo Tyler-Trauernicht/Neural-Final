@@ -1,0 +1,15 @@
+{
+  "overall_mean_success_rate": 0.0,
+  "overall_std_success_rate": 0.0,
+  "same_model_mean_success_rate": 0.0,
+  "cross_model_mean_success_rate": 0.0,
+  "transferability_ratio": NaN,
+  "fgsm_untargeted_mean_success_rate": 0.0,
+  "fgsm_untargeted_std_success_rate": 0.0,
+  "fgsm_targeted_mean_success_rate": 0.0,
+  "fgsm_targeted_std_success_rate": 0.0,
+  "pgd_untargeted_mean_success_rate": 0.0,
+  "pgd_untargeted_std_success_rate": 0.0,
+  "pgd_targeted_mean_success_rate": 0.0,
+  "pgd_targeted_std_success_rate": 0.0
+}

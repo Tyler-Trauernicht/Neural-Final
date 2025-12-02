@@ -1,0 +1,19 @@
+{
+  "index": 7,
+  "original_path": "results/problem_b/adversarial_examples/SimpleCNN/fgsm_untargeted_eps_0.05/fgsm_untargeted_eps_0.05_007_original.png",
+  "adversarial_path": "results/problem_b/adversarial_examples/SimpleCNN/fgsm_untargeted_eps_0.05/fgsm_untargeted_eps_0.05_007_adversarial.png",
+  "success_rate": 0.800000011920929,
+  "successful_samples": 8.0,
+  "total_samples": 10,
+  "epsilon": 0.05,
+  "targeted": false,
+  "mean_l2_norm": 48.69401168823242,
+  "mean_linf_norm": 1.946770429611206,
+  "original_predictions": "5",
+  "adversarial_predictions": "5",
+  "original_confidence": "0.10219197",
+  "adversarial_confidence": "0.10089295",
+  "l2_norms": "57.408203",
+  "linf_norms": "2.0151556",
+  "success_mask": "True"
+}

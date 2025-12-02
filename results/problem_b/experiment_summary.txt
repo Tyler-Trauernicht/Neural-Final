@@ -1,0 +1,43 @@
+EE4745 Problem B: Adversarial Attacks - Experiment Summary
+============================================================
+
+Experiment conducted on: 2025-12-02T14:05:34.458428
+Models tested: SimpleCNN, ResNetSmall
+Total attack configurations: 20
+
+ATTACK RESULTS SUMMARY:
+------------------------------
+
+SimpleCNN:
+  fgsm_untargeted_eps_0.01: 80.0% success, L2 norm: 48.6729
+  fgsm_untargeted_eps_0.03: 80.0% success, L2 norm: 48.6799
+  fgsm_untargeted_eps_0.05: 80.0% success, L2 norm: 48.6940
+  fgsm_untargeted_eps_0.1: 80.0% success, L2 norm: 48.7602
+  fgsm_targeted_eps_0.01: 0.0% success, L2 norm: 47.6690
+  fgsm_targeted_eps_0.03: 0.0% success, L2 norm: 47.6764
+  fgsm_targeted_eps_0.05: 0.0% success, L2 norm: 47.6913
+  fgsm_targeted_eps_0.1: 0.0% success, L2 norm: 47.7608
+  pgd_untargeted: 80.0% success, L2 norm: 48.6789
+  pgd_targeted: 0.0% success, L2 norm: 47.6753
+
+ResNetSmall:
+  fgsm_untargeted_eps_0.01: 80.0% success, L2 norm: 48.6729
+  fgsm_untargeted_eps_0.03: 80.0% success, L2 norm: 48.6799
+  fgsm_untargeted_eps_0.05: 80.0% success, L2 norm: 48.6940
+  fgsm_untargeted_eps_0.1: 80.0% success, L2 norm: 48.7601
+  fgsm_targeted_eps_0.01: 0.0% success, L2 norm: 47.6690
+  fgsm_targeted_eps_0.03: 0.0% success, L2 norm: 47.6764
+  fgsm_targeted_eps_0.05: 0.0% success, L2 norm: 47.6913
+  fgsm_targeted_eps_0.1: 0.0% success, L2 norm: 47.7614
+  pgd_untargeted: 80.0% success, L2 norm: 48.6793
+  pgd_targeted: 0.0% success, L2 norm: 47.6758
+
+TRANSFERABILITY ANALYSIS:
+------------------------------
+Overall transferability ratio: nan
+Cross-model success rate: 0.000
+Same-model success rate: 0.000
+
+KEY FINDINGS:
+------------------------------
+1. Most successful attack: fgsm_untargeted_eps_0.01 on SimpleCNN with 80.0% success rate

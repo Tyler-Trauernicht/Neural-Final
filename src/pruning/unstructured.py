@@ -224,8 +224,13 @@ def fine_tune_model(model: nn.Module, train_loader: DataLoader,
                 val_total += target.size(0)
                 val_correct += (predicted == target).sum().item()
 
-        val_acc = 100.0 * val_correct / val_total
-        avg_val_loss = val_loss / len(val_loader)
+        # Handle case when val_loader is empty
+        if val_total > 0:
+            val_acc = 100.0 * val_correct / val_total
+            avg_val_loss = val_loss / len(val_loader)
+        else:
+            val_acc = 0.0
+            avg_val_loss = 0.0
 
         # Store history
         history['train_loss'].append(avg_train_loss)
@@ -234,9 +239,13 @@ def fine_tune_model(model: nn.Module, train_loader: DataLoader,
         history['val_acc'].append(val_acc)
 
         if verbose:
-            print(f'Epoch {epoch+1}/{num_epochs}: '
-                  f'Train Loss: {avg_train_loss:.4f}, Train Acc: {train_acc:.2f}%, '
-                  f'Val Loss: {avg_val_loss:.4f}, Val Acc: {val_acc:.2f}%')
+            if val_total > 0:
+                print(f'Epoch {epoch+1}/{num_epochs}: '
+                      f'Train Loss: {avg_train_loss:.4f}, Train Acc: {train_acc:.2f}%, '
+                      f'Val Loss: {avg_val_loss:.4f}, Val Acc: {val_acc:.2f}%')
+            else:
+                print(f'Epoch {epoch+1}/{num_epochs}: '
+                      f'Train Loss: {avg_train_loss:.4f}, Train Acc: {train_acc:.2f}%')
 
     return history
 

@@ -55,7 +55,8 @@ class PGD:
             - adversarial_examples: Generated adversarial examples
             - attack_info: Dictionary containing attack statistics
         """
-        inputs = inputs.to(self.device)
+        # Clone inputs to avoid modifying the original tensor
+        inputs = inputs.clone().detach().to(self.device)
         labels = labels.to(self.device)
 
         if targeted and target_labels is None:

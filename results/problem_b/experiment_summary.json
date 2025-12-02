@@ -1,0 +1,181 @@
+{
+  "experiment_info": {
+    "timestamp": "2025-12-02T14:05:34.458428",
+    "problem": "Problem B: Adversarial Attacks",
+    "models_tested": [
+      "SimpleCNN",
+      "ResNetSmall"
+    ],
+    "total_attack_types": 20
+  },
+  "attack_summary": {
+    "SimpleCNN": {
+      "total_attacks": 10,
+      "attack_details": {
+        "fgsm_untargeted_eps_0.01": {
+          "success_rate": 0.800000011920929,
+          "mean_l2_norm": 48.67286682128906,
+          "mean_linf_norm": 1.946770429611206,
+          "successful_samples": 8.0,
+          "total_samples": 10
+        },
+        "fgsm_untargeted_eps_0.03": {
+          "success_rate": 0.800000011920929,
+          "mean_l2_norm": 48.67987060546875,
+          "mean_linf_norm": 1.946770429611206,
+          "successful_samples": 8.0,
+          "total_samples": 10
+        },
+        "fgsm_untargeted_eps_0.05": {
+          "success_rate": 0.800000011920929,
+          "mean_l2_norm": 48.69401168823242,
+          "mean_linf_norm": 1.946770429611206,
+          "successful_samples": 8.0,
+          "total_samples": 10
+        },
+        "fgsm_untargeted_eps_0.1": {
+          "success_rate": 0.800000011920929,
+          "mean_l2_norm": 48.76015090942383,
+          "mean_linf_norm": 1.946770429611206,
+          "successful_samples": 8.0,
+          "total_samples": 10
+        },
+        "fgsm_targeted_eps_0.01": {
+          "success_rate": 0.0,
+          "mean_l2_norm": 47.66897201538086,
+          "mean_linf_norm": 1.948559284210205,
+          "successful_samples": 0.0,
+          "total_samples": 9
+        },
+        "fgsm_targeted_eps_0.03": {
+          "success_rate": 0.0,
+          "mean_l2_norm": 47.676361083984375,
+          "mean_linf_norm": 1.948559284210205,
+          "successful_samples": 0.0,
+          "total_samples": 9
+        },
+        "fgsm_targeted_eps_0.05": {
+          "success_rate": 0.0,
+          "mean_l2_norm": 47.69127655029297,
+          "mean_linf_norm": 1.948559284210205,
+          "successful_samples": 0.0,
+          "total_samples": 9
+        },
+        "fgsm_targeted_eps_0.1": {
+          "success_rate": 0.0,
+          "mean_l2_norm": 47.76076889038086,
+          "mean_linf_norm": 1.948559284210205,
+          "successful_samples": 0.0,
+          "total_samples": 9
+        },
+        "pgd_untargeted": {
+          "success_rate": 0.800000011920929,
+          "mean_l2_norm": 48.67890548706055,
+          "mean_linf_norm": 1.946770429611206,
+          "successful_samples": 8.0,
+          "total_samples": 10
+        },
+        "pgd_targeted": {
+          "success_rate": 0.0,
+          "mean_l2_norm": 47.67530822753906,
+          "mean_linf_norm": 1.948559284210205,
+          "successful_samples": 0.0,
+          "total_samples": 9
+        }
+      }
+    },
+    "ResNetSmall": {
+      "total_attacks": 10,
+      "attack_details": {
+        "fgsm_untargeted_eps_0.01": {
+          "success_rate": 0.800000011920929,
+          "mean_l2_norm": 48.67286682128906,
+          "mean_linf_norm": 1.946770429611206,
+          "successful_samples": 8.0,
+          "total_samples": 10
+        },
+        "fgsm_untargeted_eps_0.03": {
+          "success_rate": 0.800000011920929,
+          "mean_l2_norm": 48.67986297607422,
+          "mean_linf_norm": 1.946770429611206,
+          "successful_samples": 8.0,
+          "total_samples": 10
+        },
+        "fgsm_untargeted_eps_0.05": {
+          "success_rate": 0.800000011920929,
+          "mean_l2_norm": 48.69397735595703,
+          "mean_linf_norm": 1.946770429611206,
+          "successful_samples": 8.0,
+          "total_samples": 10
+        },
+        "fgsm_untargeted_eps_0.1": {
+          "success_rate": 0.800000011920929,
+          "mean_l2_norm": 48.76005554199219,
+          "mean_linf_norm": 1.946770429611206,
+          "successful_samples": 8.0,
+          "total_samples": 10
+        },
+        "fgsm_targeted_eps_0.01": {
+          "success_rate": 0.0,
+          "mean_l2_norm": 47.66897201538086,
+          "mean_linf_norm": 1.948559284210205,
+          "successful_samples": 0.0,
+          "total_samples": 9
+        },
+        "fgsm_targeted_eps_0.03": {
+          "success_rate": 0.0,
+          "mean_l2_norm": 47.67637252807617,
+          "mean_linf_norm": 1.948559284210205,
+          "successful_samples": 0.0,
+          "total_samples": 9
+        },
+        "fgsm_targeted_eps_0.05": {
+          "success_rate": 0.0,
+          "mean_l2_norm": 47.69132995605469,
+          "mean_linf_norm": 1.948559284210205,
+          "successful_samples": 0.0,
+          "total_samples": 9
+        },
+        "fgsm_targeted_eps_0.1": {
+          "success_rate": 0.0,
+          "mean_l2_norm": 47.7613525390625,
+          "mean_linf_norm": 1.948559284210205,
+          "successful_samples": 0.0,
+          "total_samples": 9
+        },
+        "pgd_untargeted": {
+          "success_rate": 0.800000011920929,
+          "mean_l2_norm": 48.67931365966797,
+          "mean_linf_norm": 1.946770429611206,
+          "successful_samples": 8.0,
+          "total_samples": 10
+        },
+        "pgd_targeted": {
+          "success_rate": 0.0,
+          "mean_l2_norm": 47.67577362060547,
+          "mean_linf_norm": 1.948559284210205,
+          "successful_samples": 0.0,
+          "total_samples": 9
+        }
+      }
+    }
+  },
+  "transferability_summary": {
+    "overall_mean_success_rate": 0.0,
+    "overall_std_success_rate": 0.0,
+    "same_model_mean_success_rate": 0.0,
+    "cross_model_mean_success_rate": 0.0,
+    "transferability_ratio": NaN,
+    "fgsm_untargeted_mean_success_rate": 0.0,
+    "fgsm_untargeted_std_success_rate": 0.0,
+    "fgsm_targeted_mean_success_rate": 0.0,
+    "fgsm_targeted_std_success_rate": 0.0,
+    "pgd_untargeted_mean_success_rate": 0.0,
+    "pgd_untargeted_std_success_rate": 0.0,
+    "pgd_targeted_mean_success_rate": 0.0,
+    "pgd_targeted_std_success_rate": 0.0
+  },
+  "key_findings": [
+    "Most successful attack: fgsm_untargeted_eps_0.01 on SimpleCNN with 80.0% success rate"
+  ]
+}
