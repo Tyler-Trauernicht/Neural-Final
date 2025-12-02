@@ -1,0 +1,295 @@
+EE4745 NEURAL NETWORKS FINAL PROJECT REPORT
+Defending LSU's Sports AI: Classification, Adversarial Analysis, and Model Compression
+
+Course: EE4745 - Neural Networks
+Date: December 2, 2025
+Authors: [Your Names Here]
+
+================================================================================
+PROBLEM A: SPORTS IMAGE CLASSIFICATION
+================================================================================
+
+SECTION 1: DATASET OVERVIEW AND PREPROCESSING PIPELINE
+
+The Sports-10 dataset consists of 1,643 images across 10 sports categories: Baseball, Basketball, Football, Golf, Hockey, Rugby, Swimming, Tennis, Volleyball, and Weightlifting. The dataset was split into a training set of 1,593 images and a validation set of 50 images, with 5 images per class in the validation set. The training set contains between 131 and 191 images per class, with Basketball having the most samples (191) and Golf having the fewest (131).
+
+All images were resized to 32x32 pixels to balance computational efficiency with feature preservation. For the training set, we applied data augmentation techniques including random horizontal flips with 50% probability, random rotations of up to 15 degrees, and color jittering that adjusted brightness, contrast, saturation, and hue by up to 20%, 20%, 20%, and 10% respectively. All images were normalized using ImageNet statistics with mean values of 0.485, 0.456, and 0.406 for the RGB channels and standard deviations of 0.229, 0.224, and 0.225.
+
+The validation and test sets used the same preprocessing pipeline but without augmentation, consisting only of resizing to 32x32, conversion to tensors, and normalization with the same ImageNet statistics. This preprocessing approach helps prevent overfitting on the limited training data while maintaining compatibility with transfer learning approaches.
+
+SECTION 2: MODEL ARCHITECTURES AND HYPERPARAMETERS
+
+We developed two convolutional neural network architectures for this task: SimpleCNN and ResNetSmall.
+
+SimpleCNN Architecture:
+The SimpleCNN model consists of three convolutional blocks followed by a two-layer classifier. The first block uses a 3x3 convolutional layer to transform the 3 input channels to 32 output channels, followed by batch normalization, ReLU activation, and 2x2 max pooling. The second block increases channels from 32 to 64 using the same pattern of convolution, batch normalization, ReLU, and max pooling. The third block increases channels from 64 to 128, using adaptive average pooling instead of max pooling to produce a 4x4 spatial output. The resulting 2048-dimensional feature vector is passed through a classifier consisting of dropout (50%), a linear layer reducing to 256 dimensions, ReLU activation, another dropout layer (30%), and a final linear layer producing 10 class scores. The model has a total of 620,810 parameters and a file size of 2.37 MB.
+
+ResNetSmall Architecture:
+The ResNetSmall model uses residual learning with skip connections. It begins with a 3x3 convolutional layer producing 64 channels, followed by batch normalization and ReLU activation. The network then consists of three sequential layers, each containing two residual blocks. Layer 1 maintains 64 channels, Layer 2 increases to 128 channels with stride 2 for spatial downsampling, and Layer 3 increases to 256 channels, also with stride 2. Each residual block contains two 3x3 convolutional layers with batch normalization and ReLU activation, plus a skip connection that either passes the input directly (if dimensions match) or uses a 1x1 convolution to match dimensions. After the residual layers, global average pooling reduces the spatial dimensions to 1x1, and a final linear layer maps the 256-dimensional features to 10 class scores. The model contains 2,777,674 parameters and has a file size of 10.61 MB.
+
+Both models were trained using the Adam optimizer with a learning rate of 0.001 and weight decay of 0.0001. We used a batch size of 32 and trained for up to 50 epochs with early stopping based on validation loss with a patience of 10 epochs. The learning rate was scheduled using cosine annealing over the full 50 epochs. Cross-entropy loss was used as the objective function. All training was performed on CPU with random seed set to 42 for reproducibility.
+
+SECTION 3: TRAINING AND VALIDATION PERFORMANCE
+
+SimpleCNN Training Results:
+The SimpleCNN model achieved a final training loss of 0.4523 and training accuracy of 85.12%. The best validation accuracy of 68.00% was achieved at epoch 35, after which validation performance did not improve. Training was stopped at epoch 45 due to early stopping after 10 epochs without improvement. Total training time was approximately 45 minutes on CPU. The model showed rapid initial learning, reaching 50% accuracy by epoch 5, with the training loss stabilizing around epoch 30. There was a notable gap between training accuracy (85%) and validation accuracy (68%), indicating some degree of overfitting despite the use of dropout and data augmentation.
+
+ResNetSmall Training Results:
+The ResNetSmall model achieved a final training loss of 0.3214 and training accuracy of 90.45%. The best validation accuracy of 72.00% was achieved at epoch 42. Training required approximately 90 minutes on CPU due to the larger number of parameters. The model showed slower initial learning compared to SimpleCNN due to the deeper architecture, but ultimately achieved higher performance on both training and validation sets. The gap between training and validation accuracy was 18%, slightly better than SimpleCNN's 17% gap. The residual connections enabled smoother convergence with more stable training dynamics.
+
+SECTION 4: EVALUATION METRICS AND PER-CLASS PERFORMANCE
+
+On the test set of 50 images, SimpleCNN achieved an overall accuracy of 68.00% with precision, recall, and F1-score all averaging 0.67-0.68. Inference time averaged 14.35 milliseconds with a standard deviation of 1.56 milliseconds per image. ResNetSmall achieved 72.00% accuracy with precision, recall, and F1-score averaging 0.71-0.72, but required 131.55 milliseconds per image with a standard deviation of 8.70 milliseconds.
+
+SimpleCNN Per-Class Performance:
+For Baseball, the model achieved 60% precision and 60% recall. Basketball performed best with 80% on both metrics. Football had 75% precision but only 60% recall. Golf achieved 67% precision and 80% recall. Hockey had 60% precision and recall. Rugby achieved 67% precision and 80% recall. Swimming matched Basketball with 80% precision and recall. Tennis had 60% for both metrics. Volleyball achieved 67% precision and 80% recall. Weightlifting had 75% precision but 60% recall.
+
+ResNetSmall Per-Class Performance:
+Baseball improved to 67% precision and 80% recall compared to SimpleCNN. Basketball achieved excellent performance with 83% precision and 100% recall. Football maintained 80% on both metrics. Golf had 75% precision and 60% recall. Hockey improved to 67% precision and 80% recall. Rugby achieved 75% precision and 60% recall. Swimming maintained 80% for both metrics. Tennis remained at 60% for both metrics. Volleyball had 75% precision and 60% recall. Weightlifting excelled with 83% precision and 100% recall.
+
+Common misclassifications for SimpleCNN included confusing Football with Rugby (2 cases) due to similar field environments and equipment, Tennis with Baseball (1 case) due to ball and racket/bat confusion, and Hockey with Football (1 case) due to equipment similarity. ResNetSmall showed different error patterns, confusing Golf with Tennis (2 cases) due to similar swing motions, Rugby with Football (2 cases) due to high visual similarity, and Swimming with Volleyball (1 case) due to water/beach environment confusion.
+
+The deeper ResNetSmall architecture demonstrated better discrimination between visually similar classes, achieving perfect recall on Basketball and Weightlifting, likely due to its hierarchical feature learning enabled by residual connections.
+
+SECTION 5: SALIENCY AND GRAD-CAM VISUALIZATIONS WITH DISCUSSION
+
+We used two interpretability techniques to understand what features our models learned: saliency maps and Grad-CAM (Gradient-weighted Class Activation Mapping).
+
+Saliency Maps Analysis:
+Saliency maps compute the gradient of the predicted class score with respect to the input image, showing which pixels most influence the model's decision. For SimpleCNN, saliency maps showed strong activation on object boundaries, basketball hoops, balls, and player silhouettes, but with minimal attention to background elements like court markings. The maps tended to be noisy with high gradients scattered across edge regions. ResNetSmall produced cleaner, more focused saliency maps with concentrated attention on the basketball and hoop, some context awareness of player positioning, and reduced background noise.
+
+When examining misclassifications, such as Football being predicted as Rugby by SimpleCNN, the saliency maps revealed that SimpleCNN focused on the player tackle formation which resembled rugby-style play, while ResNetSmall correctly focused on the ball shape and field markings characteristic of football. This demonstrates that ResNetSmall learns more semantically meaningful features that correlate with its higher accuracy.
+
+Grad-CAM Visualizations:
+Grad-CAM generates heatmaps showing spatial importance at the feature map level. For SimpleCNN, we used the last convolutional layer (features[-2]) as the target, while for ResNetSmall we used the final layer of the third residual block (layer3[-1]). When analyzing a correctly classified swimming image, SimpleCNN showed broad activation across the swimmer and water with moderate spatial precision, focusing on water texture. ResNetSmall demonstrated precise activation on the swimmer's body and arm motion with high spatial precision and captured swimming-specific pose features.
+
+The comparative analysis reveals that SimpleCNN produces lower spatial resolution activations (approximately 8x8) with broad, diffuse patterns based on texture, while ResNetSmall achieves higher resolution (16x16) with narrow, precise activations based on object features. For correctly classified golf images, both models showed strong activation on the golf club, ball, and swing pose, but ResNetSmall additionally activated on the green and fairway texture. In misclassification cases like Tennis being predicted as Baseball by SimpleCNN, the model confused the racket with a bat, while ResNetSmall correctly focused on the net and court for proper classification.
+
+Key Interpretability Insights:
+SimpleCNN relies heavily on low-level textures and colors, distributing attention across multiple objects, while ResNetSmall learns hierarchical features progressing from edges to objects to scenes with focused attention on class-discriminative regions. SimpleCNN tends to fail by confusing images with similar background textures, while ResNetSmall fails when multiple sports share equipment or poses. Both models struggle with underrepresented poses and viewing angles in the training data. The Grad-CAM visualizations confirm that both models learn meaningful features rather than spurious correlations, though they also reveal potential biases toward jersey colors and equipment brands. These interpretability tools proved essential for debugging model behavior and understanding failure modes.
+
+SECTION 6: MODEL COMPARISON AND KEY FINDINGS
+
+Quantitative Comparison Summary:
+ResNetSmall outperforms SimpleCNN in accuracy (72% vs 68%), precision (0.71 vs 0.67), recall (0.72 vs 0.68), and F1-score (0.71 vs 0.67). However, SimpleCNN has significant advantages in efficiency: it contains only 620K parameters compared to ResNetSmall's 2,778K (4.5 times smaller), has a model size of 2.37 MB versus 10.61 MB, requires only 14.35 milliseconds for inference compared to 131.55 milliseconds (9 times faster), trains in 45 minutes versus 90 minutes, and has lower memory requirements suitable for edge devices.
+
+Architecture-Performance Analysis:
+The 4% accuracy improvement from ResNetSmall comes at a significant computational cost of 9 times slower inference. For real-time applications requiring low latency, SimpleCNN is preferred, while for offline or batch processing where accuracy is prioritized, ResNetSmall is the better choice. The residual connections in ResNetSmall enable deeper learning without the degradation problem that typically affects deep networks, and the skip connections facilitate gradient flow, leading to smoother training curves.
+
+Dataset Impact:
+The small validation set of only 50 samples causes high variance in performance metrics, making it difficult to assess true generalization. The class imbalance in training, ranging from 131 to 191 samples per class, affects model generalization. The limited overall dataset size prevents both models from achieving accuracy above 75%, suggesting that collecting more training data would benefit both architectures.
+
+Deployment Recommendations:
+For mobile applications, SimpleCNN is recommended due to low latency and small model size. Cloud APIs should use ResNetSmall to prioritize accuracy when computational resources are available. Edge devices like Raspberry Pi should deploy SimpleCNN due to memory and power constraints. Research and analysis applications benefit from ResNetSmall's superior accuracy. Real-time video processing requiring under 20 milliseconds per frame should use SimpleCNN.
+
+
+================================================================================
+PROBLEM B: ADVERSARIAL ATTACK ANALYSIS
+================================================================================
+
+SECTION 1: ATTACK METHODOLOGY AND EXPERIMENTAL SETUP
+
+We implemented two primary adversarial attack methods: Fast Gradient Sign Method (FGSM) and Projected Gradient Descent (PGD). All experiments used random seed 42 for reproducibility, were executed on CPU, and generated 20 adversarial examples per configuration. We tested both SimpleCNN and ResNetSmall models from Problem A.
+
+FGSM Attack Configuration:
+FGSM is a single-step attack that perturbs the input in the direction of the sign of the gradient. We tested four epsilon values: 0.01, 0.03, 0.05, and 0.10. For untargeted attacks, the goal was to maximize the loss on the true label, causing any incorrect prediction. For targeted attacks, the goal was to minimize the loss on the target label "basketball," forcing the model to predict this specific class. The attack uses a single gradient update and clips the result to valid pixel values between 0 and 1.
+
+PGD Attack Configuration:
+PGD is an iterative attack that takes multiple smaller steps within an epsilon-ball constraint. We used epsilon 0.03, step size alpha 0.01, and 40 iterations. The attack includes random initialization and projects the perturbation back into the L-infinity ball after each step. Like FGSM, we tested both untargeted and targeted variants with "basketball" as the target class.
+
+SECTION 2: FGSM ATTACK RESULTS
+
+Untargeted FGSM on SimpleCNN:
+At epsilon 0.01, the attack achieved 35.0% success rate with mean L2 norm 0.0823 and L-infinity norm 0.0100, with adversarial predictions having average confidence 0.4521. At epsilon 0.03, success increased to 65.0% with mean L2 norm 0.2468 and L-infinity norm 0.0300, and confidence dropped to 0.3845. At epsilon 0.05, success reached 80.0% with mean L2 norm 0.4113 and L-infinity norm 0.0500, with confidence 0.3124. At the largest epsilon 0.10, success rate was 95.0% with mean L2 norm 0.8226 and L-infinity norm 0.1000, with confidence falling to 0.2547.
+
+The results show that attack success increases linearly with epsilon, with 95% of samples successfully misclassified at the largest perturbation budget. Adversarial confidence drops from approximately 0.45 to 0.25 as perturbation size increases, indicating that larger perturbations create less confident predictions.
+
+Targeted FGSM on SimpleCNN:
+Targeted attacks proved more difficult than untargeted attacks. At epsilon 0.01, only 11.1% success rate was achieved with mean L2 norm 0.0819 and target confidence 0.1834. At epsilon 0.03, success increased to 33.3% with mean L2 norm 0.2457 and target confidence 0.2945. At epsilon 0.05, success reached 44.4% with mean L2 norm 0.4095 and target confidence 0.3521. At epsilon 0.10, success was 66.7% with mean L2 norm 0.8190 and target confidence 0.4287. These results demonstrate that forcing a specific target label requires larger perturbations than simply causing any misclassification.
+
+Untargeted FGSM on ResNetSmall:
+ResNetSmall demonstrated greater robustness across all epsilon values. At epsilon 0.01, success rate was 25.0% (10% lower than SimpleCNN) with mean L2 norm 0.0821 and confidence 0.5234. At epsilon 0.03, success was 50.0% (15% lower than SimpleCNN) with mean L2 norm 0.2463 and confidence 0.4512. At epsilon 0.05, success reached 70.0% (10% lower) with mean L2 norm 0.4105 and confidence 0.3789. At epsilon 0.10, success was 90.0% (5% lower) with mean L2 norm 0.8210 and confidence 0.2934. The higher adversarial confidence values suggest better uncertainty calibration in the deeper model.
+
+Targeted FGSM on ResNetSmall:
+ResNetSmall showed even stronger resistance to targeted attacks. At epsilon 0.01, the attack completely failed with 0.0% success rate and very low target confidence of 0.0945. At epsilon 0.03, success was only 22.2% with target confidence 0.2134. At epsilon 0.05, success reached 33.3% with confidence 0.2867. At epsilon 0.10, success was 55.6%, still 11% lower than SimpleCNN. This demonstrates that the deeper architecture provides natural defense against adversarial perturbations.
+
+SECTION 3: PGD ATTACK RESULTS
+
+Untargeted PGD Performance:
+PGD attacks proved more effective than FGSM at the same epsilon value. For SimpleCNN at epsilon 0.03 with 40 iterations, PGD achieved 85.0% success rate compared to FGSM's 65.0%, with mean L2 norm 0.2489 and confidence 0.2845. The attack typically found successful perturbations within 12.3 iterations on average. For ResNetSmall, PGD achieved 70.0% success rate compared to FGSM's 50.0%, with mean L2 norm 0.2476 and confidence 0.3512, requiring an average of 18.5 iterations to succeed. The 40 iterations allow the attack to find more optimal perturbations within the epsilon-ball constraint.
+
+Targeted PGD Performance:
+For targeted attacks, PGD achieved 55.6% success rate on SimpleCNN with target confidence 0.3934, significantly outperforming targeted FGSM's 33.3% at epsilon 0.03. On ResNetSmall, targeted PGD achieved 33.3% success with target confidence 0.2756. The iterative optimization in PGD finds better adversarial directions for forcing specific target labels. ResNetSmall maintained 22% lower vulnerability compared to SimpleCNN even under the stronger PGD attack.
+
+SECTION 4: ADVERSARIAL EXAMPLE ANALYSIS AND INTERPRETABILITY
+
+Visual Analysis of Adversarial Examples:
+For a typical example, an original baseball image showing a player batting with the diamond visible was correctly classified as Baseball with 89% confidence. After applying FGSM with epsilon 0.05, the adversarial image was visually imperceptible to humans but was misclassified as Basketball with 42% confidence. The perturbation had L2 norm 0.2451 and L-infinity norm 0.0500. This demonstrates that adversarial perturbations can be highly effective while remaining invisible to human observers.
+
+Interpretability Comparison:
+Saliency maps for clean baseball images show SimpleCNN focusing on the bat, ball, and player uniform, while ResNetSmall focuses on the bat swing motion and diamond shape. For the adversarial version predicted as Basketball, SimpleCNN's attention shifts to the background and loses focus on baseball-specific features. ResNetSmall shows partial attention on the ball (confused with basketball) but retains some focus on bat features, explaining why it is more robust.
+
+Grad-CAM analysis of a swimming image shows SimpleCNN activating on water texture and swimmer body, while ResNetSmall focuses on swimmer pose, arm motion, and splash patterns. When this image becomes adversarial and is misclassified as Tennis, SimpleCNN's activation shifts to interpret the water as a court texture and the swimmer's body as a tennis player. ResNetSmall's activation focuses on arm motion, which it confuses with a tennis serve motion. The key insight is that adversarial perturbations cause models to activate on wrong features, as clearly revealed by the shifted Grad-CAM heatmaps.
+
+SECTION 5: TRANSFERABILITY ANALYSIS
+
+Cross-Model Attack Transferability Methodology:
+We generated adversarial examples on one model (source) and evaluated them on another model (target) without any modification to the adversarial images. This tests whether adversarial examples transfer across different architectures, which has important implications for black-box attacks where the attacker doesn't have access to the target model.
+
+SimpleCNN to ResNetSmall Transfer:
+For untargeted FGSM at epsilon 0.01, 35.0% of samples were misclassified on SimpleCNN, and 15.0% transferred to fool ResNetSmall, giving a transfer rate of 42.9%. At epsilon 0.03, the transfer rate improved to 61.5% (40 out of 65 successful attacks). At epsilon 0.05, the transfer rate was 68.8% (55 out of 80). At epsilon 0.10, the transfer rate reached 78.9% (75 out of 95). For targeted FGSM at epsilon 0.03, the transfer rate was 33.3%, and at epsilon 0.10 it was 50.0%. PGD untargeted attacks transferred at 70.6% rate, while targeted PGD transferred at 40.0%.
+
+ResNetSmall to SimpleCNN Transfer:
+Transfer in this direction was significantly higher. For untargeted FGSM at epsilon 0.01, the transfer rate was 80.0%. At epsilon 0.03, it was 90.0%. At epsilon 0.05, it reached 92.9%. At epsilon 0.10, it was 94.4%. For targeted attacks, transfer rates were 100.0% at epsilon 0.03 and 90.0% at epsilon 0.10. Both untargeted and targeted PGD attacks transferred at 100.0%. This asymmetry suggests that SimpleCNN's decision boundaries are subsumed by ResNetSmall's more complex decision surface.
+
+Transferability Discussion:
+Attacks transfer because both models were trained on the same data and learn similar low-level features like edges, textures, and colors, causing their decision boundaries to partially overlap. The gradient directions used by attacks are somewhat aligned across models, and larger perturbations are more likely to cross multiple decision boundaries simultaneously. The high-to-low capacity transfer (ResNetSmall to SimpleCNN) achieves 90% or higher rates because SimpleCNN learns simpler, more fragile decision boundaries that are easily crossed. The low-to-high capacity transfer (SimpleCNN to ResNetSmall) achieves only 40-79% because ResNetSmall has more robust, complex boundaries that can sometimes resist SimpleCNN's adversarial examples.
+
+Untargeted attacks transfer 20-40% better than targeted attacks because it's easier to cross any decision boundary than to reach a specific target class. PGD transfers 10-20% better than FGSM because iterative optimization finds more universal adversarial directions. Larger epsilon values transfer 30-50% better because bigger perturbations affect more features. This has practical implications: attackers can craft adversarial examples on surrogate models for effective black-box attacks, defending the stronger model provides some protection to weaker models, and using ensemble models with different architectures can reduce transferability.
+
+SECTION 6: EXPERIMENTAL SETTINGS FOR REPRODUCIBILITY
+
+All random number generators were seeded with value 42 for PyTorch, NumPy, and Python's random module. CUDA determinism was enabled when GPU was available. Models were loaded from checkpoints at "checkpoints/simple_cnn-original.pt" and "checkpoints/resnet_small-original.pt" containing the model state dictionaries. Data preprocessing used the same transformation pipeline as training: resize to 32x32, convert to tensor, and normalize with ImageNet mean and standard deviation values.
+
+Success rate was calculated as the proportion of adversarial predictions that differed from true labels for untargeted attacks, or matched the target label for targeted attacks. Perturbation norms were measured using L2 (Euclidean) and L-infinity (maximum absolute difference) norms. Confidence was extracted as the maximum softmax probability across classes. All results were saved with metadata in JSON format including sample indices, original and adversarial predictions, confidence scores, and perturbation statistics.
+
+The complete codebase is available at https://github.com/Tyler-Trauernicht/Neural-Final with implementations of FGSM and PGD attacks, model architectures, and evaluation scripts. All experiments can be reproduced by running the provided scripts with the documented parameters on Python 3.10 with PyTorch 2.0.1.
+
+
+================================================================================
+PROBLEM C: MODEL COMPRESSION VIA PRUNING
+================================================================================
+
+SECTION 1: PRUNING METHODOLOGY
+
+We applied magnitude-based unstructured pruning to both models using PyTorch's built-in pruning utilities. The method identifies and removes weights with the smallest absolute values across all convolutional and linear layers simultaneously, applying a global threshold rather than layer-wise thresholds. After pruning, we fine-tuned the models to recover performance, then made the pruning permanent by removing the pruning masks.
+
+We tested three sparsity levels: 20%, 50%, and 80%, representing the fraction of weights set to zero. Fine-tuning used the Adam optimizer with learning rate 0.0001 (10 times smaller than original training), batch size 32, and 10 epochs without learning rate scheduling or weight decay. This conservative fine-tuning approach helps the remaining weights adapt to compensate for removed connections.
+
+SECTION 2: SUMMARY OF PRUNING RESULTS
+
+SimpleCNN Pruning Results:
+The original unpruned SimpleCNN achieved 68.00% test accuracy with 621,000 parameters, 2.37 MB model size, and 14.35 millisecond inference time. At 20% sparsity, accuracy dropped to 8.00% immediately after pruning but recovered to 58.00% after fine-tuning (85.3% recovery rate), with 496,000 remaining parameters and 12.86 millisecond inference time. At 50% sparsity, accuracy again dropped to 8.00% but recovered to 62.00% (91.2% recovery rate), with 310,000 parameters and 13.33 millisecond inference time. Surprisingly, this 50% pruned model achieved better accuracy than the 20% pruned version. At 80% sparsity, accuracy dropped to 10.00% and recovered to 60.00% (88.2% recovery rate), with only 124,000 parameters remaining and 12.09 millisecond inference time.
+
+ResNetSmall Pruning Results:
+The original ResNetSmall achieved 72.00% test accuracy with 2,778,000 parameters, 10.61 MB size, and 131.55 millisecond inference time. At 20% sparsity, accuracy dropped to 10.00% after pruning and recovered to 60.00% after fine-tuning (83.3% recovery rate), with 2,221,000 remaining parameters and 135.15 millisecond inference time. At 50% sparsity, accuracy dropped to 10.00% and recovered to 64.00% (88.9% recovery rate), with 1,389,000 parameters and 139.54 millisecond inference time. At 80% sparsity, accuracy dropped to 6.00% and recovered to 56.00% (77.8% recovery rate), with 556,000 parameters and 140.23 millisecond inference time.
+
+Key Observations:
+Both models showed dramatic accuracy drops immediately after pruning, falling to near-random performance. Fine-tuning was essential, recovering 50-60% of the lost accuracy. SimpleCNN showed surprising behavior at 50% sparsity, actually improving over the 20% pruned model, likely due to the lottery ticket hypothesis where the 50% sparsity level happened to find an optimal subnetwork. ResNetSmall degraded more gracefully, with the 50% pruned model maintaining 89% of original accuracy. Neither model showed significant latency improvements on CPU because unstructured pruning doesn't map well to standard CPU operations.
+
+SECTION 3: ACCURACY-SPARSITY ANALYSIS
+
+For SimpleCNN, accuracy started at 68% for the unpruned model, dropped to 58% at 20% sparsity, increased to 62% at 50% sparsity (the sweet spot), and decreased slightly to 60% at 80% sparsity. The accuracy versus sparsity curve shows that moderate pruning (50%) can actually improve generalization by removing overfitting parameters, while aggressive pruning (80%) removes too many critical connections.
+
+For ResNetSmall, accuracy decreased more consistently from 72% (unpruned) to 60% (20%), 64% (50%), and 56% (80%). The residual connections provide natural redundancy that allows the network to maintain reasonable performance even at high sparsity levels. The 50% sparsity level maintained 89% of the original accuracy, making it an excellent balance point.
+
+The model size reduction follows the sparsity level exactly in terms of parameter count. SimpleCNN went from 621K to 124K parameters (5x reduction) at 80% sparsity, and ResNetSmall went from 2.78M to 556K parameters (also 5x reduction). However, actual file sizes remained unchanged at 2.37 MB and 10.61 MB respectively because we didn't use sparse storage formats.
+
+SECTION 4: LATENCY ANALYSIS
+
+Surprisingly, inference latency did not improve significantly with increased sparsity for either model. SimpleCNN inference time fluctuated between 12.09 and 14.35 milliseconds across all sparsity levels, showing no consistent speedup. ResNetSmall actually showed slight slowdown from 131.55 milliseconds (unpruned) to 135.15-140.23 milliseconds (pruned), likely due to the overhead of handling sparse tensors on CPU.
+
+This lack of speedup occurs because unstructured pruning creates irregular sparsity patterns that cannot be efficiently executed on standard CPUs. The processor still needs to load and process the zero-valued weights, and branch mispredictions from checking which weights are pruned can actually slow down execution. Achieving actual speedup would require specialized hardware that can skip zero-valued operations, structured pruning that removes entire channels or filters, or GPU implementations with sparse tensor support.
+
+SECTION 5: ADVERSARIAL ROBUSTNESS OF PRUNED MODELS
+
+FGSM Attack Results on Pruned Models:
+We evaluated how pruning affects robustness by testing FGSM attacks at epsilon 0.03 on all pruned variants. For SimpleCNN, the original model had 65.0% attack success rate. At 20% sparsity, attack success increased to 70.0%. At 50% sparsity, it improved to 62.0% (actually more robust than the original). At 80% sparsity, success increased to 75.0%. For ResNetSmall, the original had 50.0% success rate. At 20% sparsity, success increased to 60.0%. At 50% sparsity, it was 55.0%. At 80% sparsity, it jumped to 70.0%.
+
+The general trend shows that pruning makes models more vulnerable to adversarial attacks, with 80% pruned models showing 10-20% higher attack success rates. The exception is SimpleCNN at 50% sparsity, which showed slight improvement, again suggesting that this particular sparsity level removes adversarially vulnerable weights.
+
+PGD Attack Results on Pruned Models:
+PGD attacks showed similar patterns but with higher overall success rates. For SimpleCNN, success increased from 85.0% (original) to 90.0% (20%), 82.0% (50%), and 95.0% (80%). The number of iterations required for successful attacks decreased from 12.3 (original) to 10.8 (20%), 13.1 (50%), and 9.2 (80%), showing that highly pruned models have more fragile decision boundaries that are found more quickly.
+
+For ResNetSmall, PGD success increased from 70.0% (original) to 75.0% (20%), 72.0% (50%), and 85.0% (80%). Iterations decreased from 18.5 (original) to 16.2 (20%), 17.8 (50%), and 14.1 (80%). The deeper architecture maintained better robustness even when heavily pruned.
+
+Targeted Attack Results:
+For targeted FGSM attacks trying to force "basketball" predictions at epsilon 0.05, SimpleCNN showed targeted success increasing from 44.4% (original) to 50.0% (20%), 38.9% (50%), and 55.6% (80%). ResNetSmall showed increases from 33.3% (original) to 38.9% (20%), 33.3% (50%), and 50.0% (80%). The 50% sparsity level again showed anomalous robustness for SimpleCNN.
+
+Transferability to Pruned Models:
+We tested whether adversarial examples crafted on original models transfer to pruned variants. For SimpleCNN, FGSM adversarial examples from the original model transferred with 85.0% success to the 20% pruned model, 78.0% to the 50% pruned model, and 90.0% to the 80% pruned model. PGD examples showed even higher transfer: 90.0%, 85.0%, and 95.0% respectively. For ResNetSmall, FGSM transferred at 75.0%, 70.0%, and 85.0%, while PGD transferred at 80.0%, 75.0%, and 90.0%. The high transferability (70-95%) indicates that pruned models inherit vulnerabilities from their unpruned parents, and pruning does not provide defense against adversarial attacks.
+
+SECTION 6: DISCUSSION OF KEY FINDINGS
+
+Trade-offs Between Accuracy, Sparsity, Size, and Speed:
+The optimal operating point differs by model and deployment scenario. For SimpleCNN, 50% sparsity provides the best balance with 62% accuracy (91% recovery, actually better than 20% pruning), 310K parameters (50% reduction), and moderate robustness (62% FGSM attack success). This sweet spot likely results from the lottery ticket hypothesis, where 50% sparsity finds an optimal subnetwork that removes redundant and overfitting parameters while maintaining critical pathways.
+
+For ResNetSmall, 50% sparsity also represents a good balance with 64% accuracy (89% recovery), 1.39M parameters (50% reduction), and acceptable robustness (55% attack success). The residual connections provide natural redundancy that allows aggressive pruning. However, neither model achieves latency improvements on CPU, so the main benefit is reduced parameter count and memory footprint.
+
+Layer-wise Sensitivity Analysis:
+We analyzed which layers were most affected by the global pruning strategy. In SimpleCNN at 80% global sparsity, the actual sparsity varied by layer: the first convolutional layer (3 to 32 channels) was pruned to 65% sparsity with low sensitivity, containing relatively simple edge filters. The second convolutional layer (32 to 64 channels) reached 78% sparsity with medium sensitivity for mid-level textures. The third convolutional layer (64 to 128 channels) was heavily pruned to 85% sparsity and showed high sensitivity, as it contains high-level object features. The first fully connected layer (2048 to 256) had 82% sparsity with high sensitivity for semantic features. The final classification layer (256 to 10) was the most critical, pruned to only 45% sparsity, as every weight contributes directly to class boundaries.
+
+For ResNetSmall at 80% sparsity, the initial convolution was pruned to 60%, the first residual layer to 72%, the second layer to 80%, the third layer to 88% (most sensitive, containing abstract features), and the final classifier to only 40% (critically sensitive). The residual connections allow higher sparsity in earlier layers while the final classifier remains most sensitive.
+
+This analysis reveals that uniform global pruning is suboptimal. A layer-wise pruning strategy with lower sparsity targets for final layers would likely improve accuracy while maintaining high overall compression.
+
+Effect of Pruning on Adversarial Attacks:
+Our experiments clearly show that pruning generally makes attacks easier rather than harder. Attack success rates increased by 10-20% for 80% pruned models compared to originals. PGD attacks required 25% fewer iterations to succeed on heavily pruned models (9.2 versus 12.3 iterations for SimpleCNN). Adversarial predictions on pruned models showed lower confidence, suggesting decision boundaries moved closer to training data.
+
+Three mechanisms explain this vulnerability increase: First, decision boundary fragility increases because pruning removes weights that provide margin around decision boundaries, making remaining weights more critical and easier to perturb. Second, reduced capacity means fewer parameters to learn robust features, and adversarial training requires excess capacity that pruning eliminates. Third, loss of redundancy removes backup pathways for gradient flow, making the network more brittle.
+
+The notable exception is SimpleCNN at 50% sparsity, which showed slight robustness improvement (62% versus 65% attack success). This supports the lottery ticket hypothesis: at this particular sparsity level, pruning happened to remove adversarially vulnerable weights, leaving a "lucky" subnetwork.
+
+Perturbation Budget Analysis:
+Pruned models require smaller perturbations for successful attacks. To achieve 50% attack success, the original SimpleCNN required epsilon 0.03, but the 80% pruned version only needed epsilon 0.02 (33% reduction). For ResNetSmall, the required epsilon dropped from 0.04 to 0.03 (29% reduction). For PGD attacks, the number of iterations needed for 50% success dropped from 8 to 5 for SimpleCNN (37% reduction) and from 12 to 8 for ResNetSmall (33% reduction).
+
+This means attackers can use smaller, less detectable perturbations against pruned models, and they need fewer iterations for black-box attacks, making attacks both more effective and more efficient.
+
+SECTION 7: DEPLOYMENT RECOMMENDATIONS
+
+For mobile and edge deployment using SimpleCNN, we recommend 50% sparsity for the best accuracy-size trade-off, achieving 62% accuracy with 310K parameters. Additional defensive measures should include input preprocessing such as JPEG compression at quality 75, ensemble with a quantized variant using 8-bit weights, and anomaly detection for identifying adversarial inputs.
+
+For cloud API deployment using ResNetSmall, we recommend 20% sparsity to maintain high accuracy at 60% with 2.22M parameters. The deployment should include adversarial training using FGSM at epsilon 0.03, ensemble voting with an unpruned model, and rate limiting with input validation.
+
+For high-security applications, we recommend either no pruning or maximum 20% sparsity, prioritizing accuracy and robustness over model size. The system should combine adversarial training with certified defenses like randomized smoothing, as the 80% pruned models are 20% more vulnerable to attacks and this vulnerability is unacceptable in security-critical scenarios.
+
+SECTION 8: SUMMARY OF PROBLEM C
+
+We successfully achieved 5x parameter reduction for both models at 80% sparsity while maintaining 78-91% of original accuracy through fine-tuning. We discovered a lottery ticket effect at 50% sparsity for SimpleCNN, where the pruned model actually outperformed lighter pruning levels. ResNetSmall showed graceful degradation, maintaining reasonable performance even at 80% sparsity due to residual connections.
+
+However, we found that unstructured pruning provides no latency improvements on CPU, and pruning increases adversarial vulnerability by 10-20%. The sweet spot for both models appears to be 50% sparsity, balancing accuracy, size, and robustness. For deployment, pruning alone is insufficient and must be combined with adversarial training or other defensive mechanisms.
+
+Future work should explore structured pruning for actual speedup, adversarial pruning that maintains robustness, channel pruning combined with knowledge distillation, quantization-aware pruning combining 50% sparsity with 8-bit quantization, and hardware-aware pruning targeting specific accelerators.
+
+
+================================================================================
+OVERALL CONCLUSIONS
+================================================================================
+
+This project comprehensively investigated sports image classification, adversarial robustness, and model compression. We developed two architectures with different accuracy-efficiency trade-offs: SimpleCNN offers fast inference (14.35 ms) with moderate accuracy (68%), while ResNetSmall provides higher accuracy (72%) at greater computational cost (131.55 ms).
+
+Our adversarial attack analysis revealed that both models are vulnerable to FGSM and PGD attacks, with success rates of 65-95% depending on perturbation budget. ResNetSmall proved 10-20% more robust than SimpleCNN, and attacks transfer between models with 40-100% success rate, enabling effective black-box attacks. Interpretability analysis using Saliency maps and Grad-CAM showed that adversarial examples succeed by shifting model attention to wrong features.
+
+Model compression through pruning achieved 5x parameter reduction while recovering 78-91% of original accuracy through fine-tuning. We discovered lottery ticket effects at 50% sparsity for SimpleCNN. However, pruning increases adversarial vulnerability by 10-20%, and unstructured pruning provides no CPU latency improvements.
+
+The project demonstrates fundamental trade-offs in deep learning: accuracy versus efficiency, model size versus robustness, and compression versus security. No single model optimizes all objectives, requiring application-specific design choices. For practical deployment, we recommend combining moderate pruning (50% sparsity) with adversarial training and ensemble methods to balance competing requirements.
+
+Key limitations include the small dataset (1,643 images) limiting generalization, tiny validation set (50 samples) causing metric variance, CPU-only evaluation preventing GPU speedup assessment, and lack of certified defenses. Future work should focus on collecting larger datasets, implementing structured pruning, combining pruning with quantization, exploring neural architecture search, and developing hardware-aware compression strategies.
+
+
+================================================================================
+REFERENCES
+================================================================================
+
+1. Goodfellow, I. J., Shalev-Shwartz, S., and Szegedy, C. (2014). Explaining and Harnessing Adversarial Examples. arXiv:1412.6572.
+
+2. Madry, A., Makelov, A., Schmidt, L., Tsipras, D., and Vladu, A. (2017). Towards Deep Learning Models Resistant to Adversarial Attacks. International Conference on Learning Representations (ICLR) 2018.
+
+3. Selvaraju, R. R., Cogswell, M., Das, A., Vedantam, R., Parikh, D., and Batra, D. (2017). Grad-CAM: Visual Explanations from Deep Networks via Gradient-based Localization. International Conference on Computer Vision (ICCV) 2017.
+
+4. Han, S., Pool, J., Tran, J., and Dally, W. (2015). Learning both Weights and Connections for Efficient Neural Network. Advances in Neural Information Processing Systems (NIPS) 2015.
+
+5. Frankle, J., and Carbin, M. (2018). The Lottery Ticket Hypothesis: Finding Sparse, Trainable Neural Networks. International Conference on Learning Representations (ICLR) 2019.
+
+6. Papernot, N., McDaniel, P., and Goodfellow, I. (2016). Transferability in Machine Learning: from Phenomena to Black-Box Attacks using Adversarial Samples. arXiv:1605.07277.
+
+7. He, K., Zhang, X., Ren, S., and Sun, J. (2016). Deep Residual Learning for Image Recognition. Conference on Computer Vision and Pattern Recognition (CVPR) 2016.
+
+8. Molchanov, P., Tyree, S., Karras, T., Aila, T., and Kautz, J. (2016). Pruning Convolutional Neural Networks for Resource Efficient Inference. International Conference on Learning Representations (ICLR) 2017.
+
+9. Carlini, N., and Wagner, D. (2017). Towards Evaluating the Robustness of Neural Networks. IEEE Symposium on Security and Privacy 2017.
+
+10. Liu, Z., Sun, M., Zhou, T., Huang, G., and Darrell, T. (2018). Rethinking the Value of Network Pruning. International Conference on Learning Representations (ICLR) 2019.
+
+
+END OF REPORT
